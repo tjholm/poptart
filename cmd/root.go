@@ -10,6 +10,7 @@ import (
 )
 
 const defaultTitle = "Poptart"
+const defaultImage = "./cmd/poptart.png"
 
 var rootCmd = &cobra.Command{
 	Use:   "poptart",
@@ -18,7 +19,10 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// Do Stuff Here
 		alertTitle, _ := cmd.Flags().GetString("title")
-		err := beeep.Alert(alertTitle, strings.Join(args, " "), "./cmd/poptart.png")
+		alertImage, _ := cmd.Flags().GetString("image")
+
+		err := beeep.Alert(alertTitle, strings.Join(args, " "), alertImage)
+
 		cobra.CheckErr(err)
 	},
 }
@@ -33,6 +37,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringP("title", "t", defaultTitle, "The title to set on the notification")
+	rootCmd.PersistentFlags().StringP("image", "i", defaultImage, "Path to image")
 }
 
 func initConfig() {
