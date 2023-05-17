@@ -3,20 +3,32 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
+
+	_ "embed"
 
 	"github.com/gen2brain/beeep"
 	"github.com/spf13/cobra"
 )
 
 const defaultTitle = "Poptart"
-const defaultImage = "./cmd/poptart.png"
+
+var home, _ = os.UserHomeDir()
+
+var poptartHome = path.Join(home, "./.poptart/")
+
+var defaultImagePath = path.Join(home, "./.poptart/info.png")
+
+//go:embed poptart.png
+var defaultImage []byte
 
 var rootCmd = &cobra.Command{
 	Use:   "poptart",
 	Short: "Poptart is a simple CLI for generating notifications",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+
 		// Do Stuff Here
 		alertTitle, _ := cmd.Flags().GetString("title")
 		alertImage, _ := cmd.Flags().GetString("image")
@@ -37,9 +49,16 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringP("title", "t", defaultTitle, "The title to set on the notification")
-	rootCmd.PersistentFlags().StringP("image", "i", defaultImage, "Path to image")
+	rootCmd.PersistentFlags().StringP("image", "i", defaultImagePath, "Path to image")
 }
 
 func initConfig() {
+	// Write out default image on init
+	_, err := os.Stat(defaultImagePath)
+	if err != nil {
+		os.MkdirAll(poptartHome, os.ModePerm)
+		os.WriteFile(defaultImagePath, defaultImage, os.ModePerm)
+	}
+
 	// Don't forget to read config either from cfgFile or from home directory!
 }
